@@ -1,4 +1,4 @@
-package com.kadir.security.config;
+package com.kadir.security.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -17,14 +18,14 @@ import java.util.function.Function;
 public class JwtService {
 
     private static final String SECRET_KEY = "045871d0ab8dd1ed586866dc01d43c5c1db4771f2c1d89d778b45e982142bff6";
-    public String  extractUsername(String token) {
-        return null;
-    }
 
     public String extractUsername(String token){
         return extractClaim(token,Claims::getSubject);
     }
 
+    public String generateToken(UserDetails userDetails){
+        return generateToken(new HashMap<>(),userDetails);
+    }
     public String generateToken(
             Map<String , Object> extraClaims,
             UserDetails userDetails
@@ -38,6 +39,20 @@ public class JwtService {
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    public boolean isTokenValid(String token,UserDetails userDetails){
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    private boolean isTokenExpired(String token){
+        return extractExpiration(token).before(new Date());
+    }
+
+    public Date extractExpiration(String token){
+        return extractClaim(token,Claims::getExpiration);
+    }
+
     public <T> T extractClaim(String token, Function<Claims,T> claimsResolver){
         final Claims claims = extractAllCalims(token);
         return claimsResolver.apply(claims);
