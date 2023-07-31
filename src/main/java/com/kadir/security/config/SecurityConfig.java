@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .csrf((csrf) -> csrf.disable())
                 .authorizeRequests((authorizeRequests) ->
                         authorizeRequests
-                                .requestMatchers("/public/**").permitAll() // Yetki kontrolü yapılmadan erişime açık endpointler
+                                .requestMatchers("/api/v1/auth/**").permitAll() // Yetki kontrolü yapılmadan erişime açık endpointler
                                 .anyRequest().authenticated() // Diğer tüm endpointler için yetki kontrolü yap
                 )
                 .sessionManagement(sess->sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
